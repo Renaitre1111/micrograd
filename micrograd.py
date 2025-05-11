@@ -11,7 +11,7 @@ class Value:
         self._op = _op
     
     def __repr__(self):
-        return f"Value({self.data})"
+        return f"Value(data={self.data}, grad={self.grad})"
     
     def __add__(self, other):
         other = other if isinstance(other, Value) else Value(other)
@@ -80,6 +80,15 @@ class Value:
         
         def _backward():
             self.grad += out.data * out.grad
+        out._backward = _backward
+
+        return out
+
+    def relu(self):
+        out = Value(0 if self.data > 0 else self.data, (self, ), "relu")
+
+        def _backward():
+            self.grad += (out.data > 0) * out.grad
         out._backward = _backward
 
         return out
